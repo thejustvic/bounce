@@ -101,7 +101,7 @@ interface GodRayUniforms {
 }
 export const OceanGodRays = ({
   color = '#44aaff',
-  intensity = 0.3
+  intensity = 0.5
 }: GodRaysProps) => {
   const uniforms: GodRayUniforms = useMemo(
     () => ({

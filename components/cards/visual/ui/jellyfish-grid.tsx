@@ -49,7 +49,7 @@ export const CanopyJellyfish = observer(() => {
   const checklist = cardChecklistStore.getCheckboxesCompleted(id)
   const count = checklist?.length ?? 0
 
-  const width = 5 // fixed roof width
+  const width = 4 // fixed roof width
 
   // automatically calculate the depth based on the number of elements.
   const dynamicDepth = calculateDepthByCount(count, width)
