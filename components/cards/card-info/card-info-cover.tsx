@@ -43,7 +43,7 @@ const CoverData = observer(() => {
   }
 
   return (
-    <div className="flex flex-col gap-1">
+    <div className="flex flex-1 flex-wrap gap-1">
       {bgImages.map(image => {
         return (
           <TwRadio key={image} onClick={() => updateCardBgImage(image, id)}>
