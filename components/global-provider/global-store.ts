@@ -5,7 +5,7 @@ import {minDrawerWidth} from '@/utils/const'
 import {createUseStore} from '@/utils/mobx-utils/create-use-store'
 import {makeAutoPersist} from '@/utils/mobx-utils/make-auto-persist'
 import {ObjUtil} from '@/utils/obj-util'
-import {makeAutoObservable, observable} from 'mobx'
+import {makeAutoObservable, runInAction} from 'mobx'
 import {isMobile} from 'react-device-detect'
 import {
   Card,
@@ -16,6 +16,7 @@ import {
 import {AuthTabGroup, Tab, Theme} from './types'
 
 interface State {
+  isHydrated: boolean
   theme: Theme
   authTabGroup: AuthTabGroup
   draggingCard: Card | undefined
@@ -48,6 +49,7 @@ interface State {
 
 export class GlobalStore {
   state: State = {
+    isHydrated: false, // will become true after reading localStorage
     theme: 'dark',
     authTabGroup: 'authProviders',
     draggingCard: undefined,
@@ -79,15 +81,40 @@ export class GlobalStore {
   }
 
   constructor(serverTheme: Theme | undefined) {
-    makeAutoObservable(this, {
-      state: observable.shallow
-    })
-    makeAutoPersist(this, 'global-store')
     if (serverTheme) {
-      this.setTheme(serverTheme)
+      this.state.theme = serverTheme
     }
-    this.setVisualModalFromRightDrawerOpen(false)
-    this.setIs3DSceneLocked(isMobile ? false : true)
+    this.state.isVisualModalFromRightDrawerOpen = false
+    this.state.is3DSceneLocked = !isMobile
+
+    // making the entire state deeply reactive
+    makeAutoObservable(this)
+  }
+
+  // this method is ONLY called on the client after mounting
+  initPersist(): () => void {
+    const dispose = makeAutoPersist(this, 'global-store', [
+      'theme',
+      'leftDrawerOpen',
+      'rightDrawerOpen',
+      'showLeftMenuOnHover',
+      'rightDrawerWidth',
+      'leftDrawerWidth',
+      'tab',
+      'isThirdPersonView',
+      'playerSize',
+      'eggsTotalCount',
+      'eggsLeftToCollect'
+    ])
+    runInAction(() => {
+      this.state.isHydrated = true
+    })
+    return () => {
+      dispose()
+      runInAction(() => {
+        this.state.isHydrated = false
+      })
+    }
   }
 
   setAuthTabGroup = (value: AuthTabGroup): void => {
