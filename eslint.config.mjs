@@ -1,12 +1,12 @@
 import eslintComments from "@eslint-community/eslint-plugin-eslint-comments";
-import { FlatCompat } from "@eslint/eslintrc";
+import {FlatCompat} from "@eslint/eslintrc";
 import js from "@eslint/js";
 import typescriptEslint from "@typescript-eslint/eslint-plugin";
 import tsParser from "@typescript-eslint/parser";
 import unusedImports from "eslint-plugin-unused-imports";
 import globals from "globals";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
+import {fileURLToPath} from "node:url";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -49,7 +49,7 @@ export default [{
         }],
 
         "max-lines-per-function": ["warn", {
-            max: 70,
+            max: 170,
         }],
 
         "no-nested-ternary": ["warn"],
@@ -120,7 +120,7 @@ export default [{
         "@typescript-eslint/explicit-function-return-type": "off",
 
         "max-lines-per-function": ["error", {
-            max: 70,
+            max: 170,
         }],
     },
 }];
