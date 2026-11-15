@@ -24,33 +24,51 @@ import {NavbarTeamSelect, useTeamSync} from './navbar-team-select'
 const useAdjustingDrawerWidth = (navbarWidth: number) => {
   const [globalState, globalStore] = useGlobalStore()
   useEffect(() => {
-    if (isMobile) {
+    // wait until the data is restored from localStorage and the real width of the navbar is measured
+    if (
+      isMobile ||
+      !globalState.isHydrated ||
+      !navbarWidth ||
+      navbarWidth <= 0
+    ) {
       return
     }
 
     globalStore.setNavbarWidth(navbarWidth)
 
     const threshold = minNavbarWidth - 100
-    if (navbarWidth < threshold) {
-      const gap = threshold - navbarWidth
+    if (navbarWidth >= threshold) {
+      return
+    }
 
-      const {rightDrawerWidth, leftDrawerWidth} = globalState
+    const gap = threshold - navbarWidth
+    const {rightDrawerWidth, leftDrawerWidth} = globalState
 
-      // compression of the right drawer
-      const potentialRight = rightDrawerWidth - gap
-      if (potentialRight >= minDrawerWidth) {
-        globalStore.setRightDrawerWidth(potentialRight)
-        return // return so as not to touch the left one at the same time
-      }
+    // calculate how many pixels the right panel can actually output.
+    const availableRightReduction = Math.max(
+      0,
+      rightDrawerWidth - minDrawerWidth
+    )
+    const actualRightReduction = Math.min(gap, availableRightReduction)
 
-      // if the right one is already minimal, compress the left one
-      const potentialLeft = leftDrawerWidth - gap
-      if (potentialLeft >= minDrawerWidth) {
-        globalStore.setRightDrawerWidth(minDrawerWidth)
-        globalStore.setLeftDrawerWidth(potentialLeft)
+    if (actualRightReduction > 0) {
+      globalStore.setRightDrawerWidth(rightDrawerWidth - actualRightReduction)
+    }
+
+    // calculate the remaining deficit that the right panel could not cover
+    const remainingGap = gap - actualRightReduction
+
+    // if there is still some space left, shrink the left panel (but not less than minDrawerWidth)
+    if (remainingGap > 0) {
+      const newLeftWidth = Math.max(
+        minDrawerWidth,
+        leftDrawerWidth - remainingGap
+      )
+      if (newLeftWidth !== leftDrawerWidth) {
+        globalStore.setLeftDrawerWidth(newLeftWidth)
       }
     }
-  }, [navbarWidth])
+  }, [navbarWidth, isMobile, globalState.isHydrated])
 }
 
 const TwNavbar = tw(Nav)`

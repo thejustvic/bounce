@@ -39,6 +39,14 @@ export const useDragDrawerSideHandlers = ({
     [drawer, state.leftDrawerWidth, state.rightDrawerWidth, mouseDown]
   )
 
+  // store the current navbar width in ref so as not to recreate the callback
+  const navbarWidthRef = useRef(Number(state.navbarWidth))
+  navbarWidthRef.current = Number(state.navbarWidth)
+
+  // auxiliary function to limit the value within specified limits
+  const clamp = (value: number, min: number, max: number): number =>
+    Math.min(Math.max(value, min), max)
+
   const handleMouseMove = useCallback(
     (event: MouseEvent) => {
       if (!mouseDown.value) {
@@ -46,29 +54,37 @@ export const useDragDrawerSideHandlers = ({
       }
 
       const delta = startXRef.current - event.screenX
-      const navbarWidth = Number(state.navbarWidth)
+      const currentNavbarWidth = navbarWidthRef.current
 
       if (drawer === 'left') {
-        // if the drawer size increases and the navigation bar reaches minNavbarWidth pixels, the increase should be stopped
-        if (delta < 0 && navbarWidth <= minNavbarWidth) {
+        if (delta < 0 && currentNavbarWidth <= minNavbarWidth) {
           return
         }
-        const newWidth = startWidthRef.current - delta
-        if (newWidth >= minDrawerWidth && newWidth <= maxWidthLeftDrawer) {
-          store.setLeftDrawerWidth(newWidth)
-        }
+        const rawWidth = startWidthRef.current - delta
+        const clampedWidth = clamp(rawWidth, minDrawerWidth, maxWidthLeftDrawer)
+        store.setLeftDrawerWidth(clampedWidth)
       } else {
-        // if the drawer size increases and the navigation bar reaches minNavbarWidth pixels, the increase should be stopped
-        if (delta > 0 && navbarWidth <= minNavbarWidth) {
+        if (delta > 0 && currentNavbarWidth <= minNavbarWidth) {
           return
         }
-        const newWidth = startWidthRef.current + delta
-        if (newWidth >= minDrawerWidth && newWidth <= maxWidthRightDrawer) {
-          store.setRightDrawerWidth(newWidth)
-        }
+        const rawWidth = startWidthRef.current + delta
+        const clampedWidth = clamp(
+          rawWidth,
+          minDrawerWidth,
+          maxWidthRightDrawer
+        )
+        store.setRightDrawerWidth(clampedWidth)
       }
     },
-    [mouseDown.value, drawer, state.navbarWidth, store]
+    [
+      mouseDown.value,
+      drawer,
+      store,
+      minNavbarWidth,
+      minDrawerWidth,
+      maxWidthLeftDrawer,
+      maxWidthRightDrawer
+    ]
   )
 
   const handleMouseUp = useCallback((): void => {
