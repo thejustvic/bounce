@@ -12,8 +12,8 @@ import {useGlobalStore} from '@/components/global-provider/global-store'
 import {DraggableAttributes} from '@dnd-kit/core'
 import {SyntheticListenerMap} from '@dnd-kit/core/dist/hooks/utilities'
 import {IconGripVertical} from '@tabler/icons-react'
-import {observer, useLocalObservable} from 'mobx-react-lite'
-import {PropsWithChildren} from 'react'
+import {observer} from 'mobx-react-lite'
+import {PropsWithChildren, useState} from 'react'
 import {twJoin} from 'tailwind-merge'
 
 const TwWrapper = tw.div`
@@ -121,7 +121,7 @@ const DragCheckboxButton = ({
 }
 
 export const CheckboxComponent = (props: CheckboxProps) => {
-  const store = useLocalObservable(() => new CheckboxStore())
+  const [store] = useState(() => new CheckboxStore())
 
   return (
     <CheckboxContext.Provider value={store}>

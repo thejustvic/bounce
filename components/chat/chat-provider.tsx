@@ -1,7 +1,6 @@
 'use client'
 
-import {useLocalObservable} from 'mobx-react-lite'
-import {ReactNode} from 'react'
+import {ReactNode, useState} from 'react'
 import {ChatContext, ChatStore} from './chat-store'
 
 interface Props {
@@ -9,7 +8,7 @@ interface Props {
 }
 
 export default function ChatProvider({children}: Props) {
-  const store = useLocalObservable(() => new ChatStore())
+  const [store] = useState(() => new ChatStore())
 
   return (
     <ChatContext.Provider value={store}>

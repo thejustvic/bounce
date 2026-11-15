@@ -6,8 +6,8 @@ import {cardHeight} from '@/utils/const'
 import {defaultDropAnimationSideEffects, DragOverlay} from '@dnd-kit/core'
 import {SortableContext, useSortable} from '@dnd-kit/sortable'
 import {CSS} from '@dnd-kit/utilities'
-import {observer, useLocalObservable} from 'mobx-react-lite'
-import {PropsWithChildren} from 'react'
+import {observer} from 'mobx-react-lite'
+import {PropsWithChildren, useState} from 'react'
 import tw from '../common/tw-styled-components'
 import {useGlobalStore} from '../global-provider/global-store'
 import {useTeamStore} from '../team/team-store'
@@ -18,7 +18,7 @@ import {getSearchCard} from './get-search-card'
 import {Card as CardType} from './types'
 
 export default function CardsProvider({children}: PropsWithChildren) {
-  const store = useLocalObservable(() => new CardsStore())
+  const [store] = useState(() => new CardsStore())
 
   return <CardsContext.Provider value={store}>{children}</CardsContext.Provider>
 }

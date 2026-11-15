@@ -1,6 +1,5 @@
 'use client'
-import {useLocalObservable} from 'mobx-react-lite'
-import {PropsWithChildren} from 'react'
+import {PropsWithChildren, useState} from 'react'
 import {TeamContext, TeamStore} from './team-store'
 
 interface Props extends PropsWithChildren {
@@ -8,7 +7,7 @@ interface Props extends PropsWithChildren {
 }
 
 export default function TeamProvider({children, currentTeamId}: Props) {
-  const store = useLocalObservable(() => new TeamStore(currentTeamId))
+  const [store] = useState(() => new TeamStore(currentTeamId))
 
   return (
     <TeamContext.Provider value={store}>
