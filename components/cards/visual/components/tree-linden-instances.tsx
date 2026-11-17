@@ -27,6 +27,8 @@ import {getSearchCard} from '../../get-search-card'
 import {Card} from '../../types'
 import {Point, useMainSequence, type PositionType} from '../ui/tulip'
 import {TextWithBg} from './tulip-instances'
+import {WeatherClouds} from './weather-clouds'
+import {WeatherRain} from './weather-rain'
 
 type GLTFResult = GLTF & {
   nodes: {
@@ -114,8 +116,22 @@ export const Trees = observer(() => {
           card={cardData.card}
           shouldShrink={shouldShrink}
         />
+        <Mushrooms />
       </Suspense>
     </group>
+  )
+})
+
+const Mushrooms = observer(() => {
+  const [state] = useGlobalStore()
+
+  return state.isAllCompletedInScene ? (
+    <>
+      <WeatherClouds />
+      <WeatherRain count={2000} area={55} height={30} />
+    </>
+  ) : (
+    <></>
   )
 })
 
@@ -136,41 +152,43 @@ const LoadingTrees = () => {
   )
 }
 
-const IsAllCompleted = ({checklist}: {checklist: Checkbox[] | undefined}) => {
-  // check immediately if all items are checked
-  const isAllCompleted = useMemo(() => {
-    if (!checklist?.length) {
-      return false
-    }
-    return checklist.every(checkbox => checkbox.is_completed)
-  }, [checklist])
+const IsAllCompleted = observer(
+  ({checklist}: {checklist: Checkbox[] | undefined}) => {
+    // track the delayed result
+    const [state, store] = useGlobalStore()
 
-  // track the delayed result
-  const [delayedCompleted, setDelayedCompleted] = useState(false)
+    // check immediately if all items are checked
+    const isAllCompleted = useMemo(() => {
+      if (!checklist?.length) {
+        return false
+      }
+      return checklist.every(checkbox => checkbox.is_completed)
+    }, [checklist])
 
-  useEffect(() => {
-    if (!isAllCompleted) {
-      setDelayedCompleted(false)
-      return
-    }
+    useEffect(() => {
+      if (!isAllCompleted) {
+        store.setIsAllCompletedInScene(false)
+        return
+      }
 
-    // wait 3 seconds (3000ms) before updating the result
-    const timer = setTimeout(() => {
-      setDelayedCompleted(true)
-    }, 3000)
+      // wait 3 seconds (3000ms) before updating the result
+      const timer = setTimeout(() => {
+        store.setIsAllCompletedInScene(true)
+      }, 3000)
 
-    // cancel the timer if an item gets unchecked before 3s
-    return () => clearTimeout(timer)
-  }, [isAllCompleted])
+      // cancel the timer if an item gets unchecked before 3s
+      return () => clearTimeout(timer)
+    }, [isAllCompleted])
 
-  return (
-    <Html>
-      <TwWrapper>
-        {delayedCompleted ? 'all completed' : 'not all completed'}
-      </TwWrapper>
-    </Html>
-  )
-}
+    return (
+      <Html>
+        <TwWrapper>
+          {state.isAllCompletedInScene ? 'all completed' : 'not all completed'}
+        </TwWrapper>
+      </Html>
+    )
+  }
+)
 
 interface TreeLindenInstancesProps {
   positions: PositionType[]

@@ -45,6 +45,7 @@ interface State {
   eggsTotalCount: number
   eggsLeftToCollect: number
   is3DSceneLocked: boolean
+  isAllCompletedInScene: boolean
 }
 
 export class GlobalStore {
@@ -77,7 +78,8 @@ export class GlobalStore {
     isVisualModalFromRightDrawerOpen: false,
     eggsTotalCount: 0,
     eggsLeftToCollect: 0,
-    is3DSceneLocked: isMobile ? false : true
+    is3DSceneLocked: isMobile ? false : true,
+    isAllCompletedInScene: false
   }
 
   constructor(serverTheme: Theme | undefined) {
@@ -104,7 +106,8 @@ export class GlobalStore {
       'isThirdPersonView',
       'playerSize',
       'eggsTotalCount',
-      'eggsLeftToCollect'
+      'eggsLeftToCollect',
+      'isAllCompletedInScene'
     ])
     runInAction(() => {
       this.state.isHydrated = true
@@ -236,6 +239,10 @@ export class GlobalStore {
 
   setSelectedVisualMode = (mode: CardVisualType[number]): void => {
     this.state.selectedVisualMode = mode
+  }
+
+  setIsAllCompletedInScene = (value: boolean): void => {
+    this.state.isAllCompletedInScene = value
   }
 }
 
