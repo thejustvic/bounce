@@ -107,6 +107,7 @@ export const Trees = observer(() => {
   return (
     <group>
       <Suspense fallback={<LoadingTrees />}>
+        <IsAllCompleted checklist={cardData.checklist} />
         <TreeLindenInstances
           checklist={cardData.checklist}
           positions={positions}
@@ -131,6 +132,42 @@ const LoadingTrees = () => {
   return (
     <Html>
       <TwWrapper>loading of trees...</TwWrapper>
+    </Html>
+  )
+}
+
+const IsAllCompleted = ({checklist}: {checklist: Checkbox[] | undefined}) => {
+  // check immediately if all items are checked
+  const isAllCompleted = useMemo(() => {
+    if (!checklist?.length) {
+      return false
+    }
+    return checklist.every(checkbox => checkbox.is_completed)
+  }, [checklist])
+
+  // track the delayed result
+  const [delayedCompleted, setDelayedCompleted] = useState(false)
+
+  useEffect(() => {
+    if (!isAllCompleted) {
+      setDelayedCompleted(false)
+      return
+    }
+
+    // wait 3 seconds (3000ms) before updating the result
+    const timer = setTimeout(() => {
+      setDelayedCompleted(true)
+    }, 3000)
+
+    // cancel the timer if an item gets unchecked before 3s
+    return () => clearTimeout(timer)
+  }, [isAllCompleted])
+
+  return (
+    <Html>
+      <TwWrapper>
+        {delayedCompleted ? 'all completed' : 'not all completed'}
+      </TwWrapper>
     </Html>
   )
 }
