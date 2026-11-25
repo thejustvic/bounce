@@ -26,6 +26,7 @@ import {useCardInfoStore} from '../../card-info/card-info-store'
 import {getSearchCard} from '../../get-search-card'
 import {Card} from '../../types'
 import {Point, useMainSequence, type PositionType} from '../ui/tulip'
+import {MushroomField} from './mushrooms/mushroom-3/mushroom-field'
 import {TextWithBg} from './tulip-instances'
 import {WeatherClouds} from './weather-clouds'
 import {WeatherRain} from './weather-rain'
@@ -129,6 +130,7 @@ const Mushrooms = observer(() => {
     <>
       <WeatherClouds />
       <WeatherRain count={2000} area={55} height={30} />
+      <MushroomField />
     </>
   ) : (
     <></>

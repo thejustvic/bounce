@@ -93,7 +93,7 @@ export function WeatherRain({
       // activate the drop if its turn has come and it is still raining
       if (!drop.active && isSpawning && i < maxAllowedDrops) {
         drop.active = true
-        drop.y = height + Math.random() * 2 // З'являється зверху під хмарами
+        drop.y = height + Math.random() * 2 // appears from above, beneath the clouds
       }
 
       if (drop.active) {
