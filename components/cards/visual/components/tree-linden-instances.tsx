@@ -26,7 +26,7 @@ import {useCardInfoStore} from '../../card-info/card-info-store'
 import {getSearchCard} from '../../get-search-card'
 import {Card} from '../../types'
 import {Point, useMainSequence, type PositionType} from '../ui/tulip'
-import {MushroomField} from './mushrooms/mushroom-3/mushroom-field'
+import {MushroomField} from './mushrooms/mushroom-field'
 import {TextWithBg} from './tulip-instances'
 import {WeatherClouds} from './weather-clouds'
 import {WeatherRain} from './weather-rain'
@@ -157,7 +157,7 @@ const LoadingTrees = () => {
 const IsAllCompleted = observer(
   ({checklist}: {checklist: Checkbox[] | undefined}) => {
     // track the delayed result
-    const [state, store] = useGlobalStore()
+    const [, store] = useGlobalStore()
 
     // check immediately if all items are checked
     const isAllCompleted = useMemo(() => {
@@ -185,7 +185,7 @@ const IsAllCompleted = observer(
     return (
       <Html>
         <TwWrapper>
-          {state.isAllCompletedInScene ? 'all completed' : 'not all completed'}
+          {/* {state.isAllCompletedInScene ? 'all completed' : 'not all completed'} */}
         </TwWrapper>
       </Html>
     )

@@ -7,8 +7,8 @@ import tw from '@/components/common/tw-styled-components'
 import {Html} from '@react-three/drei'
 import {observer} from 'mobx-react-lite'
 import {Suspense, useState} from 'react'
-import {Point, PositionType, useMainSequence} from '../../../ui/tulip'
-import {MushroomInstance} from './mushroom-instance'
+import {Point, PositionType, useMainSequence} from '../../ui/tulip'
+import {MushroomInstance, MushroomVariant} from './mushroom-instance'
 import {MushroomInstances} from './mushroom-instances'
 
 const calcPositions = (newData: Point[]) => {
@@ -79,16 +79,20 @@ export const MushroomField = observer(() => {
     <group>
       <Suspense fallback={<LoadingMushrooms />}>
         <MushroomInstances>
-          {positions.map(item => (
-            <MushroomInstance
-              key={item.toString()}
-              position={item}
-              shouldShrink={shouldShrink}
-              // rotation={[0, Math.random() * Math.PI * 2, 0]}
-              growDelay={15}
-              targetMaxScale={12}
-            />
-          ))}
+          {positions.map((item, index) => {
+            // it produces the sequence 1, 2, 1, 2, 1, 2...
+            const variant = ((index % 2) + 1) as MushroomVariant
+            return (
+              <MushroomInstance
+                key={item.toString()}
+                variant={variant}
+                position={item}
+                shouldShrink={shouldShrink}
+                growDelay={15}
+                targetMaxScale={10}
+              />
+            )
+          })}
         </MushroomInstances>
       </Suspense>
     </group>
