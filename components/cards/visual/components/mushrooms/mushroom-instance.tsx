@@ -6,40 +6,14 @@ import {MushroomModelKey, useMushroomModels} from './mushroom-context'
 
 export type MushroomVariant = 1 | 2
 
-// lists of parts for each type of mushroom (excluding Object_4), which is a cube figure
+// lists of parts for each type of mushroom
 const VARIANT_PARTS: Record<MushroomVariant, MushroomModelKey[]> = {
-  1: [
-    'M1_Object_6',
-    'M1_Object_7',
-    'M1_Object_8',
-    'M1_Object_9',
-    'M1_Object_10',
-    'M1_Object_11',
-    'M1_Object_12',
-    'M1_Object_13',
-    'M1_Object_14',
-    'M1_Object_15',
-    'M1_Object_16',
-    'M1_Object_17',
-    'M1_Object_18',
-    'M1_Object_19'
-  ],
-  2: [
-    'M2_Object_6',
-    'M2_Object_7',
-    'M2_Object_8',
-    'M2_Object_9',
-    'M2_Object_10',
-    'M2_Object_11',
-    'M2_Object_12',
-    'M2_Object_13',
-    'M2_Object_14'
-  ]
+  1: ['M1_Object_4'],
+  2: ['M2_Object_4']
 }
 
 interface Props {
   variant?: MushroomVariant
-  shouldShrink: boolean
   /** delay before growth begins, in seconds (default 0) */
   growDelay?: number
   /** target scale of the mushroom (default 1) */
@@ -66,6 +40,8 @@ export const MushroomInstance = ({
       return
     }
 
+    const safeDelta = Math.min(delta, 0.05)
+
     // waiting for the specified delay to pass
     if (elapsedRef.current < growDelay) {
       elapsedRef.current += delta
@@ -77,12 +53,12 @@ export const MushroomInstance = ({
       groupRef.current.scale,
       [targetMaxScale, targetMaxScale, targetMaxScale],
       5.0,
-      delta
+      safeDelta
     )
   })
 
   return (
-    <group ref={groupRef} {...groupProps} dispose={null}>
+    <group ref={groupRef} {...groupProps} scale={0.0001} dispose={null}>
       {VARIANT_PARTS[variant].map(partKey => {
         const Part = Models[partKey]
         return <Part key={partKey} />

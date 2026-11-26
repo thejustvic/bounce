@@ -1,13 +1,11 @@
 import {useCardChecklistStore} from '@/components/cards/card-checklist/card-checklist-store'
-import {useCardInfoStore} from '@/components/cards/card-info/card-info-store'
 import {getSearchCard} from '@/components/cards/get-search-card'
-import {Card} from '@/components/cards/types'
 import {Checkbox} from '@/components/checklist/types'
 import tw from '@/components/common/tw-styled-components'
 import {Html} from '@react-three/drei'
 import {observer} from 'mobx-react-lite'
-import {Suspense, useState} from 'react'
-import {Point, PositionType, useMainSequence} from '../../ui/tulip'
+import {Suspense, useMemo} from 'react'
+import {generateNonOverlappingPoints, Point, PositionType} from '../../ui/tulip'
 import {MushroomInstance, MushroomVariant} from './mushroom-instance'
 import {MushroomInstances} from './mushroom-instances'
 
@@ -15,14 +13,9 @@ const calcPositions = (newData: Point[]) => {
   const positions: PositionType[] = []
 
   newData.forEach(point => {
-    positions.push([point.x, 0, point.z])
+    positions.push([point.x, 0.25, point.z])
   })
   return positions
-}
-
-interface CardDataProps {
-  card: Card | null
-  checklist: Checkbox[] | undefined
 }
 
 const getBaseConstants = (checklist: Checkbox[] | undefined) => {
@@ -47,33 +40,25 @@ const getBaseConstants = (checklist: Checkbox[] | undefined) => {
 
 export const MushroomField = observer(() => {
   const id = String(getSearchCard())
-
   const [, cardChecklistStore] = useCardChecklistStore()
-  const [cardInfoState] = useCardInfoStore()
-
   const checklist = cardChecklistStore.getAllCheckboxes(id)
-  const card = cardInfoState.card.data
 
-  const {fieldRadius, minRequiredDistance} = getBaseConstants(checklist)
+  const itemsCount = checklist?.length ?? 0
 
-  const [positions, updatePositions] = useState<PositionType[]>([])
-  const [shouldShrink, updateShouldShrink] = useState(false)
-  const [cardData, updateCardData] = useState<CardDataProps>({
-    card: card,
-    checklist: checklist
-  })
+  const positions = useMemo(() => {
+    if (itemsCount === 0) {
+      return []
+    }
 
-  useMainSequence({
-    updatePositions,
-    updateShouldShrink,
-    updateCardData,
-    calcPositions,
-    checklist,
-    cardData,
-    card,
-    minRequiredDistance,
-    fieldRadius
-  })
+    const {fieldRadius, minRequiredDistance} = getBaseConstants(checklist)
+    const newData = generateNonOverlappingPoints({
+      numberOfItems: itemsCount,
+      fieldRadius,
+      minRequiredDistance
+    })
+
+    return calcPositions(newData)
+  }, [itemsCount])
 
   return (
     <group>
@@ -84,12 +69,11 @@ export const MushroomField = observer(() => {
             const variant = ((index % 2) + 1) as MushroomVariant
             return (
               <MushroomInstance
-                key={item.toString()}
+                key={index}
                 variant={variant}
                 position={item}
-                shouldShrink={shouldShrink}
                 growDelay={15}
-                targetMaxScale={10}
+                targetMaxScale={0.25}
               />
             )
           })}

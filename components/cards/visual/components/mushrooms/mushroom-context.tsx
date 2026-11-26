@@ -3,11 +3,8 @@ import type {FC} from 'react'
 import {createContext, useContext} from 'react'
 import {GLTFResult1, GLTFResult2} from './mushroom-instances'
 
-// generate keys with prefixes, excluding the superfluous Object_4, which is a cube figure
-type PrefixedKeys<
-  T,
-  P extends string
-> = `${P}${Exclude<keyof T & string, 'Object_4'>}`
+// generate keys with prefixes
+type PrefixedKeys<T, P extends string> = `${P}${keyof T & string}`
 
 export type MushroomModelKey =
   | PrefixedKeys<GLTFResult1['nodes'], 'M1_'>
