@@ -76,7 +76,7 @@ export const MushroomInstance = ({
     easing.damp3(
       groupRef.current.scale,
       [targetMaxScale, targetMaxScale, targetMaxScale],
-      0.25,
+      5.0,
       delta
     )
   })
