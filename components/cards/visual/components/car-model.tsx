@@ -5,8 +5,6 @@ import {useEffect, useMemo, useRef} from 'react'
 import {Group, Mesh, MeshStandardMaterial} from 'three'
 import {GLTF, SkeletonUtils} from 'three-stdlib'
 import {ModelCharacteristics} from '../ui/use-character-logic'
-import {usePlayerControls} from '../utils/helpers'
-import {useMoveForwardCamera} from './model-helpers'
 
 type GLTFResult = GLTF & {
   nodes: {
@@ -42,15 +40,20 @@ interface CarModelProps {
 }
 export const CarModel = ({characteristics}: CarModelProps) => {
   const group = useRef<Group>(null)
+  const bodyGroup = useRef<Group>(null)
+
   const {scene} = useGLTF('/car.glb')
   const clone = useMemo(() => SkeletonUtils.clone(scene), [scene])
   const {nodes, materials} = useGraph(clone) as unknown as GLTFResult
 
-  const controls = usePlayerControls({
-    is3DSceneLocked: characteristics.is3DSceneLocked
-  })
+  const wheelFL_Group = useRef<Group>(null)
+  const wheelFR_Group = useRef<Group>(null)
+  const wheelRL_Group = useRef<Group>(null)
+  const wheelRR_Group = useRef<Group>(null)
 
-  useMoveForwardCamera(group, characteristics)
+  // variables for smooth visual body smoothing
+  const smoothPitch = useRef(0)
+  const smoothRoll = useRef(0)
 
   useEffect(() => {
     // changing the rotation order for the front wheels
@@ -62,38 +65,60 @@ export const CarModel = ({characteristics}: CarModelProps) => {
     }
   }, [])
 
-  const wheelFL_Group = useRef<Group>(null)
-  const wheelFR_Group = useRef<Group>(null)
-  const wheelRL_Group = useRef<Group>(null)
-  const wheelRR_Group = useRef<Group>(null)
-
   useFrame((_state, delta) => {
-    const isMoving =
-      controls.forward || controls.backward || controls.left || controls.right
+    const telemetry = characteristics.carTelemetryRef?.current
+    if (!telemetry) {
+      return
+    }
 
-    // wheel rotation
-    if (isMoving) {
-      const speed = characteristics.speed
-      const direction = 1
-      const rotationAmount = speed * delta * direction
+    const {currentSpeed, currentSteer, acceleration} = telemetry
 
-      const allWheels = [
-        wheelFL_Group,
-        wheelFR_Group,
-        wheelRL_Group,
-        wheelRR_Group
-      ]
-      allWheels.forEach(ref => {
-        if (ref.current) {
-          ref.current.rotation.x += rotationAmount
+    // front wheel turning precisely matches the physical angle of the steering wheel
+    if (wheelFL_Group.current) {
+      wheelFL_Group.current.rotation.y = currentSteer
+    }
+    if (wheelFR_Group.current) {
+      wheelFR_Group.current.rotation.y = currentSteer
+    }
+
+    // rotation of all 4 wheels in accordance with actual speed (including coasting)
+    // WHEEL_RADIUS — adjust based on the model scale (e.g., 0.35 – 0.5) to prevent slippage
+    const WHEEL_RADIUS = 0.4
+    const wheelRotationDelta = (currentSpeed / WHEEL_RADIUS) * delta
+
+    if (Math.abs(wheelRotationDelta) > 0.0001) {
+      ;[wheelFL_Group, wheelFR_Group, wheelRL_Group, wheelRR_Group].forEach(
+        ref => {
+          if (ref.current) {
+            ref.current.rotation.x += wheelRotationDelta
+          }
         }
-      })
+      )
+    }
+
+    // smooth body tilt—forward/backward (pitch) and side-to-side (roll)
+    if (bodyGroup.current) {
+      // during acceleration (acceleration > 0), the nose rises slightly (-X); during braking, it pitches forward (+X)
+      const targetPitch = Math.max(-0.08, Math.min(0.08, -acceleration * 0.04))
+
+      // lateral tilt is proportional to the steering angle and current speed (the body does not tilt when stationary)
+      const speedFactor = Math.min(Math.abs(currentSpeed) / 5, 1)
+      const targetRoll = -currentSteer * 0.18 * speedFactor
+
+      const suspensionSmoothness = 1 - Math.exp(-8 * delta)
+      smoothPitch.current +=
+        (targetPitch - smoothPitch.current) * suspensionSmoothness
+      smoothRoll.current +=
+        (targetRoll - smoothRoll.current) * suspensionSmoothness
+
+      bodyGroup.current.rotation.x = smoothPitch.current
+      bodyGroup.current.rotation.z = smoothRoll.current
     }
   })
 
   return (
     <group ref={group} dispose={null} scale={0.3}>
-      <group position={[0, 1.8, -0.1]}>
+      <group ref={bodyGroup} position={[0, 1.8, -0.1]}>
         <mesh
           castShadow
           receiveShadow

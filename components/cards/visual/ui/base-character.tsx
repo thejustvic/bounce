@@ -1,4 +1,3 @@
-/* eslint-disable max-lines-per-function */
 import {useGlobalStore} from '@/components/global-provider/global-store'
 import {PointerLockControls} from '@react-three/drei'
 import type {RapierRigidBody} from '@react-three/rapier'
@@ -6,7 +5,7 @@ import {CapsuleCollider, RigidBody} from '@react-three/rapier'
 import {observer} from 'mobx-react-lite'
 import {RefObject, useLayoutEffect, useRef, useState} from 'react'
 import {isMobile} from 'react-device-detect'
-import type {Mesh} from 'three'
+import type {Group, Mesh} from 'three'
 import {PlayerSizeType} from '../../types'
 import {BunnyModel} from '../components/bunny-model'
 import {CarModel} from '../components/car-model'
@@ -44,9 +43,10 @@ export const BaseCharacter = observer(
     const isThirdPersonView = globalState.isThirdPersonView
 
     const meshRef = useRef<Mesh>(null)
+    const visualRef = useRef<Group>(null) // interpolated visual container
 
     const {shift, sitDown} = usePlayerControls({is3DSceneLocked})
-    const [speed, setSpeed] = useState(walkSpeed)
+    const [speed, setSpeed] = useState(runSpeed)
 
     const smoothnessFactor = isThirdPersonView
       ? thirdPersonViewSmoothnessFactor
@@ -59,14 +59,15 @@ export const BaseCharacter = observer(
       if (sitDown) {
         setSpeed(sittingSpeed)
       } else if (shift) {
-        setSpeed(runSpeed)
+        setSpeed(walkSpeed)
       } else {
-        setSpeed(isMobile ? runSpeed : walkSpeed)
+        setSpeed(playerSize === 'car' ? 8 : runSpeed)
       }
-    }, [isThirdPersonView, sitDown, shift])
+    }, [isThirdPersonView, sitDown, shift, playerSize])
 
     const characteristics = useCharacterLogic({
       rigidBodyRef,
+      visualRef,
       movement: {
         moveData,
         lookData
@@ -100,18 +101,20 @@ export const BaseCharacter = observer(
           colliders={false}
           lockRotations
         >
-          {/* visual */}
-          <mesh ref={meshRef} position={[0, 0, 0]} castShadow receiveShadow>
-            {getModel({
-              playerSize,
-              characteristics
-            })}
-          </mesh>
-          {/* physics collider */}
-          <CapsuleCollider
-            args={argsCapsuleCollider}
-            position={positionCapsuleCollider}
-          />
+          <group ref={visualRef}>
+            {/* visual */}
+            <mesh ref={meshRef} position={[0, 0, 0]} castShadow receiveShadow>
+              {getModel({
+                playerSize,
+                characteristics
+              })}
+            </mesh>
+            {/* physics collider */}
+            <CapsuleCollider
+              args={argsCapsuleCollider}
+              position={positionCapsuleCollider}
+            />
+          </group>
         </RigidBody>
       </>
     )

@@ -96,11 +96,11 @@ export const getNextActionBunny = (
   }
 
   if (isMoving && shift) {
-    return 'Run'
+    return 'Walk'
   }
 
   if (isMoving) {
-    return 'Walk'
+    return 'Run'
   }
 
   return 'Idle'
@@ -149,11 +149,11 @@ export const getNextActionHuman = (
   }
 
   if (isMoving && shift) {
-    return 'Jog_Fwd_Loop'
+    return 'Walk_Loop'
   }
 
   if (isMoving) {
-    return 'Walk_Loop'
+    return 'Jog_Fwd_Loop'
   }
 
   return 'Idle_Loop'
