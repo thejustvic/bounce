@@ -200,7 +200,7 @@ export const useCharacterLogic = (
 
       const steerInput =
         moveData.current.x !== 0
-          ? -moveData.current.x
+          ? moveData.current.x
           : Number(left) - Number(right)
 
       const maxSpeed = speed
