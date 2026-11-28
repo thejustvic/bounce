@@ -105,9 +105,9 @@ export const useCarEngineSound = (
       const lfoDepth = ctx.createGain()
       lfoDepth.gain.value = 0.55 // wave depth (varies from 0.3 to 1.0)
 
-      // Overall wheelSpin volume (0.1 at rest)
+      // overall wheelSpin volume (0 at rest)
       const skidGain = ctx.createGain()
-      skidGain.gain.value = 0.1
+      skidGain.gain.value = 0
 
       // connect the LFO to the pulse volume.
       skidLfo.connect(lfoDepth)
