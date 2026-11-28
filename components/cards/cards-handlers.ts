@@ -1,5 +1,6 @@
+import {TablesUpdate} from '@/utils/database.types'
 import {useSupabase} from '@/utils/supabase-utils/supabase-provider'
-import {PostgrestSingleResponse} from '@supabase/postgrest-js'
+import {PostgrestSingleResponse} from '@supabase/supabase-js'
 import {generateKeyBetween} from 'fractional-indexing'
 import {useTeamStore} from '../team/team-store'
 import {useCardsStore} from './cards-store'
@@ -121,12 +122,11 @@ export const useCardHandlers = (): Handlers => {
       throw Error('You must provide a user object!')
     }
 
-    await supabase
-      .from('cards')
-      .update({
-        [name]: color
-      })
-      .eq('id', cardId)
+    const payload: TablesUpdate<'cards'> = {
+      [name]: color
+    }
+
+    await supabase.from('cards').update(payload).eq('id', cardId)
   }
 
   return {

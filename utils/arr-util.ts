@@ -62,7 +62,7 @@ export class ArrUtil {
   ): ReadonlyArray<T> {
     return ArrUtil.insert(array, index, item).filter(
       (_: T, i: number) => i !== index + 1
-    ) as ReadonlyArray<T>
+    )
   }
 
   public static last<T>(array?: ArrayLike<T>): T | undefined {
@@ -104,7 +104,7 @@ export class ArrUtil {
   }
 
   public static defined<T>(arr: (T | undefined)[]): T[] {
-    return arr.filter(el => typeof el !== 'undefined') as unknown as T[]
+    return arr.filter(el => typeof el !== 'undefined')
   }
 
   public static diff<T>(

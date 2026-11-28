@@ -33,7 +33,7 @@ export const makeAutoPersist = <S extends object>(
         runInAction(() => {
           for (const key of keysToPersist) {
             if (parsed.state?.[key] !== undefined) {
-              _this.state[key] = parsed.state[key] as S[keyof S]
+              _this.state[key] = parsed.state[key]
             }
           }
         })

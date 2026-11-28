@@ -69,12 +69,10 @@ export const BasicScene = ({
 
   return (
     <TwWrapper $isVisualTab={Boolean(visualTab)}>
-      {isReady.value && (
-        <>
-          <ButtonsAboveCanvas />
-          <JoysticksAboveCanvas moveData={moveData} lookData={lookData} />
-        </>
-      )}
+      <div className={isReady.value ? '' : 'opacity-0 pointer-events-none'}>
+        <ButtonsAboveCanvas />
+        <JoysticksAboveCanvas moveData={moveData} lookData={lookData} />
+      </div>
       <Canvas>
         <Suspense fallback={<CanvasLoader />}>
           <Lighting playerRef={rigidBodyRef} />

@@ -74,7 +74,7 @@ const createTwComponent = <T extends ElementType>(Tag: T): TwTemplate<T> => {
 
     Component.displayName = `tw(${typeof Tag === 'string' ? Tag : 'Component'})`
 
-    return Component as unknown as ReturnType<TwTemplate<T>>
+    return Component
   }
 }
 

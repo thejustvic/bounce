@@ -1,8 +1,4 @@
-import type {
-  PostgrestError,
-  PostgrestResponse,
-  PostgrestSingleResponse
-} from '@supabase/postgrest-js'
+import type {PostgrestError} from '@supabase/supabase-js'
 import {useEffect, useState} from 'react'
 
 export interface SupabaseQuery<T> {
@@ -11,9 +7,12 @@ export interface SupabaseQuery<T> {
   error: PostgrestError | null
 }
 
-type SupabaseRequest<T> = PromiseLike<
-  PostgrestSingleResponse<T> | PostgrestResponse<T>
-> & {
+type SupabaseResponse<T> = {
+  data: T | null
+  error: PostgrestError | null
+}
+
+type SupabaseRequest<T> = PromiseLike<SupabaseResponse<T>> & {
   abortSignal?: (signal: AbortSignal) => SupabaseRequest<T>
 }
 
@@ -50,7 +49,7 @@ export const useSupabaseFetch = <T>(
 
         setResult({
           loading: false,
-          data: res.error ? null : (res.data as T),
+          data: res.error ? null : res.data,
           error: res.error ?? null
         })
       } catch (e: unknown) {

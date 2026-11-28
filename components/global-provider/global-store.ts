@@ -230,7 +230,7 @@ export class GlobalStore {
   }
 
   checkIfSomeLoad = (): boolean => {
-    return ObjUtil.values(this.state.logging).some(e => e === true)
+    return ObjUtil.values(this.state.logging).some(e => e)
   }
 
   setIs3DSceneLocked = (value: boolean): void => {

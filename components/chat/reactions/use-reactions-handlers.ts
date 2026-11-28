@@ -52,7 +52,7 @@ export const useReactionsHandlers = (): Handlers => {
     )
     const reactionsResult: Reactions = ObjUtil.isEmpty(filteredReactions)
       ? {}
-      : (filteredReactions as Reactions)
+      : filteredReactions
     await updateMessageReactions(reactionsResult, message.id)
   }
 
